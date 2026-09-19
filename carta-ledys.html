@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para Ledys</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Italiana&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#1a0b2e;
+    --sky-mid:#2d1b4e;
+    --sky-bottom:#4a2c7a;
+    --gold:#e8d5f0;
+    --gold-soft:#f0e6f5;
+    --rose:#d4a5e8;
+    --cream:#f8f0fc;
+    --card-bg: rgba(45, 27, 78, 0.75);
+    --card-border: rgba(212, 165, 232, 0.5);
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+  body{
+    height:100%;
+    margin:0;
+    min-height:100vh;
+    background: radial-gradient(ellipse at 50% -10%, var(--sky-mid), var(--sky-top) 60%);
+    color:var(--cream);
+    font-family:'Cormorant Garamond', serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ---------- Cielo estrellado ---------- */
+  #sky{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    overflow:hidden;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
+  }
+  .star{
+    position:absolute;
+    background:var(--cream);
+    border-radius:50%;
+    opacity:0.8;
+    animation: twinkle linear infinite;
+    box-shadow: 0 0 6px 2px rgba(248,240,252,0.4);
+    transition: transform 0.3s ease-out;
+  }
+  @keyframes twinkle{
+    0%,100%{ opacity:0.2; }
+    25%{ opacity:0.9; }
+    50%{ opacity:0.6; }
+    75%{ opacity:1; }
+  }
+  .firefly{
+    position:absolute;
+    width:6px; height:6px;
+    border-radius:50%;
+    background: radial-gradient(circle, var(--gold) 0%, rgba(232,213,240,0) 70%);
+    box-shadow: 0 0 12px 4px rgba(212,165,232,0.8), 0 0 20px 8px rgba(212,165,232,0.4);
+    animation: float-up linear infinite;
+    transition: transform 0.3s ease-out;
+  }
+  @keyframes float-up{
+    0%{ bottom: -10px; left: var(--start-left); opacity:0; }
+    10%{ opacity:1; }
+    90%{ opacity:0.8; }
+    100%{ bottom: 110vh; left: calc(var(--start-left) + 20px); opacity:0; }
+  }
+
+  .heart{
+    position:absolute;
+    font-size:18px;
+    color:var(--rose);
+    opacity:0;
+    animation: heart-drift linear infinite;
+    filter: drop-shadow(0 0 8px rgba(212,165,232,0.8)) drop-shadow(0 0 15px rgba(212,165,232,0.5));
+    transition: transform 0.3s ease-out;
+  }
+  @keyframes heart-drift{
+    0%{ bottom: -20px; left: var(--start-left); rotate: 0deg; scale: 0.8; opacity:0; }
+    10%{ opacity:0.9; rotate: 0deg; scale: 1; }
+    50%{ bottom: 50vh; left: calc(var(--start-left) - 15px); rotate: 12deg; scale: 1.1; opacity:0.75; }
+    90%{ opacity:0.5; }
+    100%{ bottom: 105vh; left: calc(var(--start-left) - 30px); rotate: 25deg; scale: 0.9; opacity:0; }
+  }
+
+  /* ---------- Escenario ---------- */
+  main{
+    position:relative;
+    z-index:1;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 40px 20px;
+  }
+
+  .stage{
+    width:100%;
+    max-width:520px;
+    text-align:center;
+  }
+
+  .intro-title{
+    font-family:'Italiana', serif;
+    font-weight:400;
+    letter-spacing:0.04em;
+    font-size: clamp(28px, 7vw, 40px);
+    color:var(--gold-soft);
+    margin: 0 0 6px 0;
+  }
+  .intro-sub{
+    font-size: clamp(16px, 4vw, 19px);
+    color: rgba(247,241,228,0.75);
+    margin: 0 0 48px 0;
+    font-style: italic;
+  }
+
+  /* ---------- Sobre ---------- */
+  #envelope-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+  }
+  .envelope{
+    position:relative;
+    width: min(78vw, 300px);
+    height: calc(min(78vw, 300px) * 0.66);
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    perspective: 1000px;
+  }
+  .env-body{
+    position:absolute;
+    inset:0;
+    background: linear-gradient(160deg, #16204a, #0e1533);
+    border:1px solid var(--card-border);
+    border-radius:6px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(243,201,105,0.08);
+  }
+  .env-flap{
+    position:absolute;
+    top:0; left:0; right:0;
+    height:0;
+    border-left: calc(min(78vw, 300px)/2) solid transparent;
+    border-right: calc(min(78vw, 300px)/2) solid transparent;
+    border-top: calc(min(78vw, 300px)*0.5) solid #1c2a5c;
+    transform-origin: top center;
+    transition: transform 0.9s cubic-bezier(.6,-0.1,.3,1.3);
+    z-index:3;
+  }
+  .envelope.open .env-flap{
+    transform: rotateX(180deg);
+  }
+  .env-shadow-fold{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    top:38%;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.18));
+    z-index:2;
+    pointer-events:none;
+  }
+  .seal{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width:56px; height:56px;
+    border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #f6d98b, var(--gold) 55%, #c99a3a 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.15);
+    z-index:4;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .envelope.open .seal{
+    opacity:0;
+    transform: translate(-50%,-50%) scale(0.4);
+  }
+  .env-name{
+    position:absolute;
+    bottom:22%;
+    left:0; right:0;
+    text-align:center;
+    font-family:'Italiana', serif;
+    font-size:19px;
+    letter-spacing:0.06em;
+    color: var(--gold-soft);
+    z-index:2;
+  }
+
+  .tap-hint{
+    font-size:14px;
+    letter-spacing:0.08em;
+    color: rgba(247,241,228,0.55);
+    animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:0.4; }
+    50%{ opacity:0.9; }
+  }
+
+  /* ---------- Carta ---------- */
+  #letter{
+    max-width:560px;
+    width:100%;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius:14px;
+    padding: clamp(28px, 6vw, 52px) clamp(22px, 6vw, 46px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 60px rgba(243,201,105,0.06);
+    backdrop-filter: blur(6px);
+    opacity:0;
+    transform: translateY(24px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+    display:none;
+  }
+  #letter.show{
+    display:block;
+  }
+  #letter.reveal{
+    opacity:1;
+    transform: translateY(0);
+  }
+  .letter-heading{
+    font-family:'Italiana', serif;
+    font-size: clamp(24px, 5vw, 30px);
+    color: var(--gold-soft);
+    margin: 0 0 4px 0;
+  }
+  .letter-date{
+    font-size:14px;
+    color: rgba(247,241,228,0.5);
+    margin:0 0 28px 0;
+    font-style:italic;
+  }
+  .letter-body{
+    font-size: clamp(18px, 4.4vw, 20px);
+    line-height:1.75;
+    color: var(--cream);
+    text-align:left;
+    white-space:pre-wrap;
+  }
+  .letter-signature{
+    margin-top:34px;
+    text-align:right;
+    font-family:'Italiana', serif;
+    font-size:20px;
+    color: var(--gold-soft);
+  }
+  .letter-hearts{
+    text-align:center;
+    margin-top:30px;
+    font-size:18px;
+    color:var(--rose);
+    letter-spacing:10px;
+  }
+
+  @media (max-width: 380px){
+    .letter-body{ font-size:17px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="sky"></div>
+
+<main>
+  <div class="stage">
+
+    <div id="intro">
+      <p class="intro-sub">un pequeño regalo para</p>
+      <h1 class="intro-title">Ledys Ricardo</h1>
+
+      <div id="envelope-wrap">
+        <div class="envelope" id="envelope" onclick="openEnvelope()">
+          <div class="env-shadow-fold"></div>
+          <div class="env-body"></div>
+          <div class="env-name">Ledys</div>
+          <div class="env-flap"></div>
+          <div class="seal">♥</div>
+        </div>
+        <p class="tap-hint">toca el sobre para abrirlo</p>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!--  ✏️  AQUÍ ESCRIBES TU CARTA                                   -->
+    <!--  Reemplaza el texto entre las comillas triples style          -->
+    <!--  del bloque .letter-body más abajo, o directamente el texto   -->
+    <!--  que está dentro de <div class="letter-body"> ... </div>      -->
+    <!--  También puedes cambiar la fecha y la firma.                  -->
+    <!-- ============================================================ -->
+    <div id="letter">
+      <h2 class="letter-heading">Para ti, Ledys</h2>
+      <p class="letter-date">19 de septiembre de 2026</p>
+
+      <div class="letter-body">Querida Ledys,
+
+Escribo esta carta para poder decirte lo mucho que significas para mí. Sé que hasta ahora, recién hace poco empezamos a hablar cada vez más y poco a poco conocernos mejor.
+
+Pero antes de eso estaba esperando alguna señal de esa niña bonita por la que tanto he orado, esperado y he anhelado en mi corazón, de esa niña bonita que quiero conquistar día a día, con todo lo que tengo en mi ser y como te dije anoche: tú eres esa bonita, tú eres esa mujer por la que me la quiero jugar toda.
+
+Para mí esto puede ser el comienzo de algo muy bonito, verdadero, sincero, real y espero que para ti también lo sea así, que tú también puedas darte la oportunidad de estar conmigo.
+
+Sé que Dios une propósitos y que su voluntad es buena, agradable y perfecta. Ahora bien, me gustaría que sepas que si tú, Ledys, me das la oportunidad de poder entrar a tu vida y de que podamos tener tiempos de calidad para conocernos, prometo que te trataré como te lo mereces y te apoyaré en lo que necesites, en tus proyectos y metas que tengas en mente.
+
+Quiero hacer las cosas bien contigo y espero que en un futuro no muy lejano, podamos estar juntos. Por el momento, ¡Feliz Día del Amor y la Amistad!
+
+Espero que esta pequeña carta bajo las estrellas te recuerde siempre lo especial, valiosa, vistuosa, bonita, hermosa, divina, linda persona, única y amada que siempre has sido.</div>
+
+      <p class="letter-signature">Con cariño, ♥ Juan Camilo</p>
+      <p class="letter-hearts">✦ ♥ ✦</p>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // ---------- Generar estrellas ----------
+  const sky = document.getElementById('sky');
+  const starCount = 90;
+  for(let i=0;i<starCount;i++){
+    const s = document.createElement('div');
+    s.className='star';
+    const size = Math.random()*2 + 1;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    const leftPos = Math.random()*100;
+    const topPos = Math.random()*70;
+    s.style.left = leftPos+'%';
+    s.style.top = topPos+'%';
+    s.style.setProperty('--start-left', leftPos + '%');
+    s.style.setProperty('--start-top', topPos + '%');
+    s.style.animationDuration = (2 + Math.random()*3)+'s';
+    s.style.animationDelay = (Math.random()*4)+'s';
+    sky.appendChild(s);
+  }
+
+  // ---------- Luciérnagas doradas ----------
+  const fireflyCount = 14;
+  for(let i=0;i<fireflyCount;i++){
+    const f = document.createElement('div');
+    f.className='firefly';
+    const leftPos = Math.random()*100;
+    f.style.left = leftPos+'%';
+    f.style.setProperty('--start-left', leftPos + '%');
+    f.style.bottom = '-10px';
+    f.style.animationDuration = (9 + Math.random()*8)+'s';
+    f.style.animationDelay = (Math.random()*10)+'s';
+    sky.appendChild(f);
+  }
+
+  // ---------- Corazones flotantes ----------
+  const heartSymbols = ['♥','❥'];
+  const heartCount = 10;
+  for(let i=0;i<heartCount;i++){
+    const h = document.createElement('div');
+    h.className='heart';
+    h.textContent = heartSymbols[Math.floor(Math.random()*heartSymbols.length)];
+    const leftPos = Math.random()*100;
+    h.style.left = leftPos+'%';
+    h.style.setProperty('--start-left', leftPos + '%');
+    h.style.bottom = '-20px';
+    h.style.fontSize = (10 + Math.random()*12)+'px';
+    h.style.animationDuration = (12 + Math.random()*10)+'s';
+    h.style.animationDelay = (Math.random()*14)+'s';
+    sky.appendChild(h);
+  }
+
+  // ---------- Interactividad con cursor y touch ----------
+  let mouseX = window.innerWidth / 2;
+  let mouseY = window.innerHeight / 2;
+  
+  // Eventos del mouse
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+  
+  // Eventos touch para móviles
+  document.addEventListener('touchmove', (e) => {
+    if(e.touches.length > 0) {
+      mouseX = e.touches[0].clientX;
+      mouseY = e.touches[0].clientY;
+    }
+  });
+  
+  document.addEventListener('touchstart', (e) => {
+    if(e.touches.length > 0) {
+      mouseX = e.touches[0].clientX;
+      mouseY = e.touches[0].clientY;
+    }
+  });
+  
+  // Función para actualizar posición de elementos
+  function updateElements() {
+    const stars = document.querySelectorAll('.star');
+    const fireflies = document.querySelectorAll('.firefly');
+    const hearts = document.querySelectorAll('.heart');
+    
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Calcular el desplazamiento basado en la posición del cursor
+    const offsetX = (mouseX - centerX) / centerX;
+    const offsetY = (mouseY - centerY) / centerY;
+    
+    // Mover estrellas (solo transform adicional)
+    stars.forEach((star, index) => {
+      const depth = 0.3 + (index % 3) * 0.2;
+      const moveX = offsetX * 20 * depth;
+      const moveY = offsetY * 20 * depth;
+      star.style.marginLeft = moveX + 'px';
+      star.style.marginTop = moveY + 'px';
+    });
+    
+    // Mover luciérnagas
+    fireflies.forEach((firefly, index) => {
+      const depth = 0.5 + (index % 2) * 0.3;
+      const moveX = offsetX * 35 * depth;
+      const moveY = offsetY * 35 * depth;
+      firefly.style.marginLeft = moveX + 'px';
+      firefly.style.marginTop = moveY + 'px';
+    });
+    
+    // Mover corazones
+    hearts.forEach((heart, index) => {
+      const depth = 0.4 + (index % 2) * 0.2;
+      const moveX = offsetX * 30 * depth;
+      const moveY = offsetY * 30 * depth;
+      heart.style.marginLeft = moveX + 'px';
+      heart.style.marginTop = moveY + 'px';
+    });
+    
+    requestAnimationFrame(updateElements);
+  }
+  
+  // Iniciar la animación de interactividad
+  updateElements();
+
+  // ---------- Abrir sobre ----------
+  let opened = false;
+  function openEnvelope(){
+    if(opened) return;
+    opened = true;
+    const env = document.getElementById('envelope');
+    env.classList.add('open');
+
+    setTimeout(()=>{
+      document.getElementById('intro').style.transition = 'opacity 0.6s ease';
+      document.getElementById('intro').style.opacity = '0';
+      setTimeout(()=>{
+        document.getElementById('intro').style.display = 'none';
+        const letter = document.getElementById('letter');
+        letter.classList.add('show');
+        requestAnimationFrame(()=>{
+          requestAnimationFrame(()=> letter.classList.add('reveal'));
+        });
+      }, 550);
+    }, 700);
+  }
+</script>
+
+</body>
+</html>
